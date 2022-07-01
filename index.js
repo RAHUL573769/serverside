@@ -12,7 +12,12 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const {
+  MongoClient,
+  ServerApiVersion,
+  ObjectId,
+  ObjectID,
+} = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iuaz1.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
 const client = new MongoClient(uri, {
@@ -43,6 +48,37 @@ async function run() {
       };
 
       const result = await todoCollection.deleteOne(query);
+      res.send(result);
+    });
+    app.put("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedUser = req.body;
+
+      const filter = {
+        _id: ObjectId(id),
+      };
+
+      const options = { upsert: true };
+
+      const updatedDoc = {
+        $set: {
+          name: updatedUser.name,
+          day: updatedUser.day,
+        },
+      };
+
+      const result = await todoCollection.updateOne(
+        filter,
+        updatedDoc,
+        options
+      );
+
+      res.send(result);
+    });
+    app.get("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectID(id) };
+      const result = await todoCollection.findOne(query);
       res.send(result);
     });
     app.get("/todo", async (req, res) => {
