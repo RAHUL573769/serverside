@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.iuaz1.mongodb.net/?retryWrites=true&w=majority`;
 console.log(uri);
 const client = new MongoClient(uri, {
@@ -36,7 +36,15 @@ async function run() {
 
       res.send(resultTodo);
     });
+    app.delete("/todo/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: ObjectId(id),
+      };
 
+      const result = await todoCollection.deleteOne(query);
+      res.send(result);
+    });
     app.get("/todo", async (req, res) => {
       const query = {};
       const cursor = todoCollection.find(query);
